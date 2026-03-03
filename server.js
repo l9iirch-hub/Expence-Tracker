@@ -1,35 +1,33 @@
-// server.js - Fichier principal de l'application
-
-// 1. IMPORTS
-require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+const connectDB = require('./config/db');
+const transactionRoutes = require('./routes/transactionRoutes');
+const errorHandler = require('./middleware/errorHandler');
 
-// 2. INITIALISATION
+// Charger les variables d'environnement
+dotenv.config();
+
+// Connexion à MongoDB
+connectDB();
+
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-// 3. MIDDLEWARES GLOBAUX
-app.use(express.json()); // Pour lire le JSON dans les requêtes
+// Middleware
+app.use(express.json());
 
-// 4. CONNEXION À MONGODB
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('✅ Connecté à MongoDB'))
-  .catch(err => {
-    console.error('❌ Erreur de connexion à MongoDB:', err);
-    process.exit(1); // Arrête l'app si pas de DB
-  });
+// Routes
+app.use('/api/transactions', transactionRoutes);
 
-// 5. ROUTE DE TEST
+// Route de base
 app.get('/', (req, res) => {
-  res.json({ 
-    message: 'Bienvenue sur l\'API Finance Personnelle',
-    status: 'opérationnel',
-    version: '1.0.0'
-  });
+    res.json({ message: 'API FinTech opérationnelle' });
 });
 
-// 6. DÉMARRAGE DU SERVEUR
+// Middleware de gestion d'erreurs (doit être après les routes)
+app.use(errorHandler);
+
+const PORT = process.env.PORT || 5000;
+
 app.listen(PORT, () => {
-  console.log(`🚀 Serveur démarré sur http://localhost:${PORT}`);
+    console.log(`Serveur démarré sur le port ${PORT}`);
 });
