@@ -8,7 +8,6 @@ const {
 } = require('../controllers/transactionController');
 const { validateTransaction } = require('../middleware/validation');
 const { checkBalance } = require('../middleware/balanceCheck');
-
 router.route('/')
     .get(getTransactions)
     .post(validateTransaction, checkBalance, createTransaction);
