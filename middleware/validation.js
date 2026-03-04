@@ -1,6 +1,5 @@
 const { body, validationResult } = require('express-validator');
 
-// Règles de validation pour la création d'une transaction
 const validateTransaction = [
     body('title')
         .notEmpty().withMessage('Le titre est obligatoire')
@@ -25,7 +24,7 @@ const validateTransaction = [
         .isISO8601().withMessage('La date doit être valide (format ISO8601)')
         .toDate(),
     
-    // Middleware pour vérifier les résultats de validation
+    // pour vérifier les résultats de validation avec middleware
     (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {

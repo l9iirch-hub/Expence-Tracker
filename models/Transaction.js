@@ -35,7 +35,6 @@ const transactionSchema = new mongoose.Schema({
     timestamps: true
 });
 
-// Index pour améliorer les performances des requêtes de filtrage
 transactionSchema.index({ date: 1 });
 transactionSchema.index({ type: 1 });
 transactionSchema.index({ category: 1 });

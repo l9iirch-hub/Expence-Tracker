@@ -16,7 +16,6 @@ const getTransactions = async (req, res, next) => {
     try {
         const { page = 1, limit = 10, date, startDate, endDate, category, type } = req.query;
         
-        // Construction du filtre
         const filter = {};
         
         if (date) {

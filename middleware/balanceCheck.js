@@ -30,7 +30,6 @@ const checkBalance = async (req, res, next) => {
             ? result[0].totalIncome - result[0].totalExpense 
             : 0;
 
-        // Vérifier si la nouvelle dépense ferait passer le solde en négatif
         if (balance - req.body.amount < 0) {
             return res.status(400).json({
                 success: false,

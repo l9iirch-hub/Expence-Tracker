@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
     res.json({ message: 'API FinTech opérationnelle' });
 });
 
-// Middleware de gestion d'erreurs (doit être après les routes)
+// Middleware de gestion d'erreurs
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
