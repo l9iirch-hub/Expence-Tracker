@@ -39,7 +39,6 @@ const checkBalance = async (req, res, next) => {
             });
         }
 
-        // Ajouter le solde calculé à req pour utilisation ultérieure si nécessaire
         req.currentBalance = balance;
         next();
     } catch (error) {
