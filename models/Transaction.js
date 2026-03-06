@@ -19,12 +19,17 @@ const transactionSchema = new mongoose.Schema({
             message: 'Le type doit être income ou expense'
         }
     },
+    // category: {
+    //     type: String,
+    //     required: function() {
+    //         return this.type === 'expense';
+    //     },
+    //     trim: true
+    // },
     category: {
-        type: String,
-        required: function() {
-            return this.type === 'expense';
-        },
-        trim: true
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Category",
+        required: true
     },
     date: {
         type: Date,

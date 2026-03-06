@@ -2,6 +2,8 @@ const express = require('express');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const transactionRoutes = require('./routes/transactionRoutes');
+const categoryRoutes = require('./routes/categoryRoutes');  
+const budgetRoutes = require('./routes/budgetRoutes');       
 const errorHandler = require('./middleware/errorHandler');
 
 // Charger les variables d'environnement
@@ -17,6 +19,8 @@ app.use(express.json());
 
 // Routes
 app.use('/api/transactions', transactionRoutes);
+app.use('/api/categories', categoryRoutes);   
+app.use('/api/budgets', budgetRoutes);        
 
 // Route de base
 app.get('/', (req, res) => {

@@ -1,17 +1,78 @@
 const Transaction = require('../models/Transaction');
+const Category = require("../models/Category");
+
+const Budget = require("../models/Budget");
 
 const createTransaction = async (req, res, next) => {
     try {
+        const { category, amount, date } = req.body;
+
+        //Vérifier si la catégorie existe
+        const existingCategory = await Category.findById(category);
+
+        if (!existingCategory) {
+            return res.status(400).json({
+                success: false,
+                message: "Catégorie invalide"
+            });
+        }
+
+        // Créer la transaction
         const transaction = await Transaction.create(req.body);
-        
+
+        // ---Vérification du budget---
+
+        const transactionDate = date ? new Date(date) : new Date();
+        const month = transactionDate.getMonth() + 1;
+        const year = transactionDate.getFullYear();
+
+        const budget = await Budget.findOne({
+            category,
+            month,
+            year
+        });
+
+        let warning = null;
+
+        if (budget) {
+
+            const totalSpent = await Transaction.aggregate([
+                {
+                    $match: {
+                        category: existingCategory._id,
+                        type: "expense",
+                        date: {
+                            $gte: new Date(year, month - 1, 1),
+                            $lte: new Date(year, month, 0, 23, 59, 59)
+                        }
+                    }
+                },
+                {
+                    $group: {
+                        _id: null,
+                        total: { $sum: "$amount" }
+                    }
+                }
+            ]);
+
+            const currentTotal = totalSpent[0]?.total || 0;
+
+            if (currentTotal > budget.limitAmount) {
+                warning = "⚠ Budget dépassé pour cette catégorie !";
+            }
+        }
+
         res.status(201).json({
             success: true,
-            data: transaction
+            data: transaction,
+            warning
         });
+
     } catch (error) {
         next(error);
     }
 };
+
 const getTransactions = async (req, res, next) => {
     try {
         const { page = 1, limit = 10, date, startDate, endDate, category, type } = req.query;
@@ -47,9 +108,10 @@ const getTransactions = async (req, res, next) => {
         
         // Exécution de la requête
         const transactions = await Transaction.find(filter)
-            .sort({ date: -1 })
-            .skip(skip)
-            .limit(parseInt(limit));
+        .populate("category", "name")
+        .sort({ date: -1 })
+        .skip(skip)
+        .limit(parseInt(limit));
         
         // Compter le total pour la pagination
         const total = await Transaction.countDocuments(filter);
@@ -109,15 +171,32 @@ const getMonthlyStats = async (req, res, next) => {
                         }
                     ],
                     categories: [
-                        {
-                            $match: { type: 'expense' }
-                        },
-                        {
-                            $group: {
-                                _id: '$category',
-                                total: { $sum: '$amount' }
+                            {
+                                $match: { type: 'expense' }
+                            },
+                            {
+                                $group: {
+                                    _id: '$category',
+                                    total: { $sum: '$amount' }
+                                }
+                            },
+                            {
+                                $lookup: {
+                                    from: "categories",
+                                    localField: "_id",
+                                    foreignField: "_id",
+                                    as: "categoryInfo"
+                                }
+                            },
+                            {
+                                $unwind: "$categoryInfo"
+                            },
+                            {
+                                $project: {
+                                    category: "$categoryInfo.name",
+                                    total: 1
+                                }
                             }
-                        }
                     ]
                 }
             }
