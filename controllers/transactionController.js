@@ -1,8 +1,6 @@
 const Transaction = require('../models/Transaction');
 const Category = require("../models/Category");
-
 const Budget = require("../models/Budget");
-
 const createTransaction = async (req, res, next) => {
     try {
         const { category, amount, date } = req.body;
