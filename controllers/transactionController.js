@@ -56,7 +56,7 @@ const createTransaction = async (req, res, next) => {
             const currentTotal = totalSpent[0]?.total || 0;
 
             if (currentTotal > budget.limitAmount) {
-                warning = "⚠ Budget dépassé pour cette catégorie !";
+                warning = " Budget dépassé pour cette catégorie !";
             }
         }
 
